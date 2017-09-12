@@ -87,12 +87,133 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack = util.Stack()
+    visited = []
+    
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+
+    current_state = problem.getStartState()
+
+    result = dfsExplore(problem, stack, current_state, "", visited)
+    if result == "goal":
+        printStack(stack)
+        return directions_from_stack(stack)
+    elif result == "end":
+        print "No solution found"
+
+
+def directions_from_stack(stack):
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    e = Directions.EAST
+    n = Directions.NORTH
+    directions = []
+    for tuple in stack.list:
+        if tuple[1] == "South":
+            directions.append(s)
+        elif tuple[1] == "North":
+            directions.append(n)
+        elif tuple[1] == "West":
+            directions.append(w)
+        elif tuple[1] == "East":
+            directions.append(e)
+
+    return directions
+
+
+def dfsExplore(problem, stack, current_state, action, visited):
+    visited.append(current_state)
+    stack.push([current_state, action])
+    print "exploring", current_state
+    if problem.isGoalState(current_state):
+        return "goal"
+
+    successors = problem.getSuccessors(current_state)
+
+    for nextState, action, cost in reversed(successors):
+        if nextState not in visited:
+            result = dfsExplore(problem, stack, nextState, action, visited)
+            if result == "goal":
+                return "goal"
+
+    stack.pop()
+    return "end"
+
+def printStack(stack):
+    print "Final stack is", stack.list
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    queue = util.Queue()
+    visited = []
+    goalNode = None
+    path = None
+#     add starting Node as the first node of queue
+    queue.push(BfsNode(problem.getStartState()))
+
+    while not queue.isEmpty():
+        result = bfsExplore(problem, queue, visited)
+        if result is not None:
+            goalNode = result
+            break
+
+    if goalNode is not None:
+        # goal node found successfully.
+        print "Found solution"
+        path = directions_using_bfs_goal_node(goalNode)
+    else:
+        print "No solution found"
+    return path
+
+
+def bfsExplore(problem, queue, visited):
+
+    # make first queue node as current one to explore it
+    currentNode = queue.pop()
+    visited.append(currentNode.getState())
+    print "Exploring", currentNode.getState()
+
+    # check if current node is the goal node
+    if problem.isGoalState(currentNode.getState()):
+        return currentNode
+    else: #else add all unexplored successor nodes into the queue
+        #fetch all successors
+        successors = problem.getSuccessors(currentNode.getState())
+        for successorState, successorAction, successorCost in successors:
+            if successorState not in visited:
+                successorNode = BfsNode(successorState, successorAction, currentNode)
+                queue.push(successorNode)
+        return None
+
+def directions_using_bfs_goal_node(goalNode):
+    directions = []
+    currentNode = goalNode
+    while currentNode.getAction() is not None:
+        directions.insert(0, getDirectionValueForName(currentNode.getAction()))
+        currentNode = currentNode.getParentNode()
+    return directions
+
+
+def getDirectionValueForName(directionName):
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    e = Directions.EAST
+    n = Directions.NORTH
+    if directionName == "North":
+        return n
+    elif directionName == "South":
+        return s
+    elif directionName == "East":
+        return e
+    elif directionName == "West":
+        return w
+    else:
+        return None
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -110,6 +231,23 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
+class BfsNode:
+
+    def __init__(self, state, action=None, parent_node=None):
+        self.state = state
+        self.action = action
+        self.parentNode = parent_node
+
+    def getParentNode(self):
+        return self.parentNode
+
+    def getState(self):
+        return self.state
+
+    def getAction(self):
+        return self.action
+
 
 
 # Abbreviations
