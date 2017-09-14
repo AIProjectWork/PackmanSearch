@@ -296,7 +296,7 @@ def ucsExplore(problem, queue, visited):
         successors = problem.getSuccessors(current_node.get_state())
         for successor_state, successor_action, successor_cost in successors:
             successor_node = UcsNode(successor_state, successor_action, current_node, successor_cost)
-            if is_entry_allowed(successor_node,visited):
+            if is_an_acceptable_ucs_node(successor_node,visited):
                 visited.append([successor_state, successor_node.get_cost_till_here()])
                 print successor_state, "Successor cost:", successor_cost, " cost until here", successor_node.get_cost_till_here()
 
@@ -304,7 +304,7 @@ def ucsExplore(problem, queue, visited):
         return None
 
 
-def is_entry_allowed(ucs_node, visited):
+def is_an_acceptable_ucs_node(ucs_node, visited):
     for visited_state, visited_cost in visited:
         if ucs_node.get_state() == visited_state:
             return visited_cost > ucs_node.get_cost_till_here()
@@ -365,7 +365,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     goal_node = None
     path = None
     #     add starting Node as the first node of queue
-    starting_node = AStarNode(problem.getStartState(),None,None,0,heuristic(problem.getStartState(),problem))
+    starting_node = AStarNode(problem.getStartState(), None, None, 0, heuristic(problem.getStartState(), problem))
+    visited.append([starting_node.get_state(), starting_node.get_cost_till_here()])
     queue.push(starting_node, starting_node.get_total_predicted_cost())
 
     while not queue.isEmpty():
@@ -386,7 +387,6 @@ def a_star_explore(problem, queue, visited, heuristic):
 
     # make first queue node as current one to explore it
     current_node = queue.pop()
-    visited.append(current_node.get_state())
 
     # check if current node is the goal node
     if problem.isGoalState(current_node.get_state()):
@@ -395,10 +395,11 @@ def a_star_explore(problem, queue, visited, heuristic):
         #fetch all successors
         successors = problem.getSuccessors(current_node.get_state())
         for successor_state, successor_action, successor_cost in successors:
-            if successor_state not in visited:
-                heuristic_value = heuristic(successor_state, problem)
-                successor_node = AStarNode(successor_state, successor_action,
-                                           current_node, successor_cost, heuristic_value)
+            heuristic_value = heuristic(successor_state, problem)
+            successor_node = AStarNode(successor_state, successor_action,
+                                       current_node, successor_cost, heuristic_value)
+            if is_an_acceptable_a_star_node(successor_node, visited):
+                visited.append([successor_node.get_state(),successor_node.get_cost_till_here()])
                 queue.push(successor_node, successor_node.get_total_predicted_cost())
         return None
 
@@ -411,6 +412,12 @@ def directions_using_astar_goal_node(goal_node):
         current_node = current_node.get_parent_node()
     return directions
 
+
+def is_an_acceptable_a_star_node(a_star_node, visited):
+    for visited_state, visited_cost in visited:
+        if a_star_node.get_state() == visited_state:
+            return visited_cost > a_star_node.get_cost_till_here()
+    return True
 
 class AStarNode:
 
