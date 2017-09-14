@@ -72,145 +72,168 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  ["South", s, w, s, w, w, s, w]
 
+
+"""
+****** DFS
+"""
+result_success = "Success"
+result_fail = "failed"
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
     Your search algorithm needs to return a list of actions that reaches the
     goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
     stack = util.Stack()
     visited = []
 
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-
     current_state = problem.getStartState()
-
-    result = dfsExplore(problem, stack, current_state, None, visited)
-    if result == "goal":
-        printStack(stack)
+    starting_node = DfsNode(current_state)
+    result = dfs_explore(problem, stack, starting_node, visited)
+    if result == result_success:
         return directions_from_stack(stack)
-    elif result == "end":
+    elif result == result_fail:
         print "No solution found"
+
+
+def dfs_explore(problem, stack, dfs_node, visited):
+    visited.append(dfs_node.get_state())
+    stack.push(dfs_node)
+    if problem.isGoalState(dfs_node.get_state()):
+        return result_success
+    successors = problem.getSuccessors(dfs_node.get_state())
+    for successor_state, successor_action, successor_cost in reversed(successors):
+        if successor_state not in visited:
+            result = dfs_explore(problem, stack, DfsNode(successor_state, successor_action), visited)
+            if result == result_success:
+                return result_success
+    stack.pop()
+    return result_fail
 
 
 def directions_from_stack(stack):
     directions = []
-    for tuple in stack.list:
-        if tuple[1] is not None:
-            directions.append(tuple[1])
-
+    for dfs_node in stack.list:
+        if dfs_node.get_action() is not None:
+            directions.append(dfs_node.get_action())
     return directions
 
 
-def dfsExplore(problem, stack, current_state, action, visited):
-    visited.append(current_state)
-    stack.push([current_state, action])
-    print "exploring", current_state
-    if problem.isGoalState(current_state):
-        return "goal"
+class DfsNode:
 
-    successors = problem.getSuccessors(current_state)
+    def __init__(self, state, action=None):
+        self.state = state
+        self.action = action
 
-    for nextState, action, cost in reversed(successors):
-        if nextState not in visited:
-            result = dfsExplore(problem, stack, nextState, action, visited)
-            if result == "goal":
-                return "goal"
+    def get_state(self):
+        return self.state
 
-    stack.pop()
-    return "end"
+    def get_action(self):
+        return self.action
 
-def printStack(stack):
-    print "Final stack is", stack.list
+
+'''
+*** BFS
+'''
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     queue = util.Queue()
     visited = []
-    goalNode = None
+    goal_node = None
     path = None
 #     add starting Node as the first node of queue
     queue.push(BfsNode(problem.getStartState()))
 
     while not queue.isEmpty():
-        result = bfsExplore(problem, queue, visited)
+        result = bfs_explore(problem, queue, visited)
         if result is not None:
-            goalNode = result
+            goal_node = result
             break
 
-    if goalNode is not None:
+    if goal_node is not None:
         # goal node found successfully.
         print "Found solution"
-        path = directions_using_bfs_goal_node(goalNode)
+        path = directions_using_bfs_goal_node(goal_node)
     else:
         print "No solution found"
     return path
 
 
-def bfsExplore(problem, queue, visited):
+def bfs_explore(problem, queue, visited):
 
     # make first queue node as current one to explore it
-    currentNode = queue.pop()
-    visited.append(currentNode.getState())
+    current_node = queue.pop()
+    visited.append(current_node.get_state())
 
     # check if current node is the goal node
-    if problem.isGoalState(currentNode.getState()):
-        return currentNode
+    if problem.isGoalState(current_node.get_state()):
+        return current_node
     else: #else add all unexplored successor nodes into the queue
         #fetch all successors
-        successors = problem.getSuccessors(currentNode.get_state())
-        for successorState, successorAction, successorCost in successors:
-            if successorState not in visited:
-                successorNode = BfsNode(successorState, successorAction, currentNode)
-                queue.push(successorNode)
+        successors = problem.getSuccessors(current_node.get_state())
+        for successor_state, successor_action, successor_cost in successors:
+            if successor_state not in visited:
+                successor_node = BfsNode(successor_state, successor_action, current_node)
+                queue.push(successor_node)
         return None
+
+
+def directions_using_bfs_goal_node(goal_node):
+    directions = []
+    current_node = goal_node
+    while current_node.get_action() is not None:
+        directions.insert(0, current_node.get_action())
+        current_node = current_node.get_parent_node()
+    return directions
+
+
+class BfsNode:
+
+    def __init__(self, state, action=None, parent_node=None):
+        self.state = state
+        self.action = action
+        self.parent_node = parent_node
+
+    def get_parent_node(self):
+        return self.parent_node
+
+    def get_state(self):
+        return self.state
+
+    def get_action(self):
+        return self.action
+
+
+'''
+*** Uniform Cost Search
+'''
+
 
 def ucsExplore(problem, queue, visited):
 
     # make first queue node as current one to explore it
-    currentNode = queue.pop()
-    visited.append(currentNode.get_state())
+    current_node = queue.pop()
+    visited.append(current_node.get_state())
 
     # check if current node is the goal node
-    if problem.isGoalState(currentNode.get_state()):
-        return currentNode
+    if problem.isGoalState(current_node.get_state()):
+        return current_node
     else: #else add all unexplored successor nodes into the queue
         #fetch all successors
-        successors = problem.getSuccessors(currentNode.get_state())
-        for successorState, successorAction, successorCost in successors:
-            if successorState not in visited:
-                successorNode = UcsNode(successorState, successorAction, currentNode, successorCost)
-                queue.push(successorNode, successorNode.get_cost_till_here())
+        successors = problem.getSuccessors(current_node.get_state())
+        for successor_state, successor_action, successor_cost in successors:
+            if successor_state not in visited:
+                successor_node = UcsNode(successor_state, successor_action, current_node, successor_cost)
+                queue.push(successor_node, successor_node.get_cost_till_here())
         return None
 
 
-def directions_using_bfs_goal_node(goalNode):
-    directions = []
-    currentNode = goalNode
-    while currentNode.getAction() is not None:
-        directions.insert(0, currentNode.getAction())
-        currentNode = currentNode.getParentNode()
-    return directions
-
-def directions_using_ucs_goal_node(goalNode):
-    directions = []
-    currentNode = goalNode
-    while currentNode.get_action() is not None:
-        directions.insert(0, currentNode.get_action())
-        currentNode = currentNode.get_parent_node()
-    return directions
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -219,7 +242,7 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     queue = util.PriorityQueue()
     visited = []
-    goalNode = None
+    goal_node = None
     path = None
     #     add starting Node as the first node of queue
     queue.push(UcsNode(problem.getStartState()), 0)
@@ -227,93 +250,25 @@ def uniformCostSearch(problem):
     while not queue.isEmpty():
         result = ucsExplore(problem, queue, visited)
         if result is not None:
-            goalNode = result
+            goal_node = result
             break
 
-    if goalNode is not None:
+    if goal_node is not None:
         # goal node found successfully.
         print "Found solution"
-        path = directions_using_ucs_goal_node(goalNode)
+        path = directions_using_ucs_goal_node(goal_node)
     else:
         print "No solution found"
     return path
 
 
-def nullHeuristic(state, problem=None):
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
-
-def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    queue = util.PriorityQueue()
-    visited = []
-    goalNode = None
-    path = None
-    #     add starting Node as the first node of queue
-    starting_node = AStarNode(problem.getStartState(),None,None,0,heuristic(problem.getStartState(),problem))
-    queue.push(starting_node, starting_node.get_total_predicted_cost())
-
-    while not queue.isEmpty():
-        result = aStarExplore(problem, queue, visited, heuristic)
-        if result is not None:
-            goalNode = result
-            break
-
-    if goalNode is not None:
-        # goal node found successfully.
-        print "Found solution"
-        path = directions_using_ucs_goal_node(goalNode)
-    else:
-        print "No solution found"
-    return path
-
-def aStarExplore(problem, queue, visited, heuristic):
-
-    # make first queue node as current one to explore it
-    currentNode = queue.pop()
-    visited.append(currentNode.get_state())
-
-    # check if current node is the goal node
-    if problem.isGoalState(currentNode.get_state()):
-        return currentNode
-    else: #else add all unexplored successor nodes into the queue
-        #fetch all successors
-        successors = problem.getSuccessors(currentNode.get_state())
-        for successorState, successorAction, successorCost in successors:
-            if successorState not in visited:
-                heuristic_value = heuristic(successorState, problem)
-                successorNode = AStarNode(successorState, successorAction, currentNode, successorCost, heuristic_value)
-                queue.push(successorNode, successorNode.get_total_predicted_cost())
-        return None
-
-def directions_using_astar_goal_node(goalNode):
+def directions_using_ucs_goal_node(goal_node):
     directions = []
-    currentNode = goalNode
-    while currentNode.get_action() is not None:
-        directions.insert(0, currentNode.get_action())
-        currentNode = currentNode.get_parent_node()
+    current_node = goal_node
+    while current_node.get_action() is not None:
+        directions.insert(0, current_node.get_action())
+        current_node = current_node.get_parent_node()
     return directions
-
-
-
-class BfsNode:
-
-    def __init__(self, state, action=None, parent_node=None):
-        self.state = state
-        self.action = action
-        self.parentNode = parent_node
-
-    def getParentNode(self):
-        return self.parentNode
-
-    def getState(self):
-        return self.state
-
-    def getAction(self):
-        return self.action
 
 
 class UcsNode:
@@ -339,6 +294,74 @@ class UcsNode:
 
     def get_cost_till_here(self):
         return self.cost_till_here
+
+
+'''
+*** A-Star
+'''
+
+
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    queue = util.PriorityQueue()
+    visited = []
+    goal_node = None
+    path = None
+    #     add starting Node as the first node of queue
+    starting_node = AStarNode(problem.getStartState(),None,None,0,heuristic(problem.getStartState(),problem))
+    queue.push(starting_node, starting_node.get_total_predicted_cost())
+
+    while not queue.isEmpty():
+        result = a_star_explore(problem, queue, visited, heuristic)
+        if result is not None:
+            goal_node = result
+            break
+
+    if goal_node is not None:
+        # goal node found successfully.
+        print "Found solution"
+        path = directions_using_ucs_goal_node(goal_node)
+    else:
+        print "No solution found"
+    return path
+
+
+def a_star_explore(problem, queue, visited, heuristic):
+
+    # make first queue node as current one to explore it
+    current_node = queue.pop()
+    visited.append(current_node.get_state())
+
+    # check if current node is the goal node
+    if problem.isGoalState(current_node.get_state()):
+        return current_node
+    else: #else add all unexplored successor nodes into the queue
+        #fetch all successors
+        successors = problem.getSuccessors(current_node.get_state())
+        for successor_state, successor_action, successor_cost in successors:
+            if successor_state not in visited:
+                heuristic_value = heuristic(successor_state, problem)
+                successor_node = AStarNode(successor_state, successor_action,
+                                           current_node, successor_cost, heuristic_value)
+                queue.push(successor_node, successor_node.get_total_predicted_cost())
+        return None
+
+
+def directions_using_astar_goal_node(goal_node):
+    directions = []
+    current_node = goal_node
+    while current_node.get_action() is not None:
+        directions.insert(0, current_node.get_action())
+        current_node = current_node.get_parent_node()
+    return directions
 
 
 class AStarNode:
