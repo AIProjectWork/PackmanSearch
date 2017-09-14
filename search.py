@@ -298,8 +298,6 @@ def ucsExplore(problem, queue, visited):
             successor_node = UcsNode(successor_state, successor_action, current_node, successor_cost)
             if is_an_acceptable_ucs_node(successor_node,visited):
                 visited.append([successor_state, successor_node.get_cost_till_here()])
-                print successor_state, "Successor cost:", successor_cost, " cost until here", successor_node.get_cost_till_here()
-
                 queue.push(successor_node, successor_node.get_cost_till_here())
         return None
 
