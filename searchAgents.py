@@ -341,7 +341,6 @@ class CornersProblem(search.SearchProblem):
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            print state
             x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             next_x, next_y = int(x + dx), int(y + dy)
@@ -351,7 +350,6 @@ class CornersProblem(search.SearchProblem):
                 corner_statuses = copy.deepcopy(state[1])
                 self.mark_corner_visited(next_x, next_y, corner_statuses)
                 next_state = ((next_x, next_y), corner_statuses)
-                print next_state
                 successors.append((next_state, action, 1))
 
         self._expanded += 1  # DO NOT CHANGE
@@ -387,8 +385,24 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    corner_statuses = state[1]
+    distances = []
+
+    for corner, is_visited in corner_statuses:
+        if not is_visited:
+            current_position = state[0]
+            distances.append(get_manhattan_distance(current_position, corner))
+
+    if len(distances) == 0:
+        return 0
+    else:
+        return max(distances)
+
+
+def get_manhattan_distance(point1, point2):
+    xy1 = point1
+    xy2 = point2
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
