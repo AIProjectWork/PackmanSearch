@@ -361,7 +361,7 @@ class CornersProblem(search.SearchProblem):
         include an illegal move, return 999999.  This is implemented for you.
         """
         if actions == None: return 999999
-        x,y= self.startingPosition
+        x, y = self.startingPosition
         for action in actions:
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
@@ -404,11 +404,13 @@ def get_manhattan_distance(point1, point2):
     xy2 = point2
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
+
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, cornersHeuristic)
         self.searchType = CornersProblem
+
 
 class FoodSearchProblem:
     """
@@ -423,8 +425,8 @@ class FoodSearchProblem:
         self.start = (startingGameState.getPacmanPosition(), startingGameState.getFood())
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
-        self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self._expanded = 0  # DO NOT CHANGE
+        self.heuristicInfo = {}  # A dictionary for the heuristic to store information
 
     def getStartState(self):
         return self.start
@@ -460,11 +462,13 @@ class FoodSearchProblem:
             cost += 1
         return cost
 
+
 class AStarFoodSearchAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
+
 
 def foodHeuristic(state, problem):
     """
@@ -496,6 +500,22 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+
+    # converting foodGrid into list to find length and further processing
+    foodGridList = foodGrid.asList()
+    # print ("foodGridList:\n {}".format(foodGridList))
+
+    distances = []
+    # check distance for each food item
+    for foodItem in foodGridList:
+        distances.append(get_manhattan_distance(position, foodItem))
+    # for -ends
+    # if we don't have any goal, distance list will be zero, in that case game is over, else return the max distance
+    if len(distances) == 0:
+        return 0
+    else:
+        return max(distances)
+    # game over
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -527,7 +547,10 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # here, action is not defined. so we will use aStarSearch algorithm
+        packmanActions = search.aStarSearch(problem)
+        return packmanActions
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -545,7 +568,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
     """
 
     def __init__(self, gameState):
-        "Stores information from the gameState.  You don't need to change this."
+        """Stores information from the gameState.  You don't need to change this."""
         # Store the food for later reference
         self.food = gameState.getFood()
 
@@ -563,7 +586,16 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # converting foodGrid into foodList
+        foodList = self.food.asList()
+        # finding minimum distance to the nearest food from entire problem
+        distance, food = min(((get_manhattan_distance(state, foodItem), foodItem) for foodItem in foodList))
+        # if on the current position we have food than return that given state is goal state, else return false
+        foodGoalState = (state == food)
+        # print ("distance = {}, food = {}, foodGoal = {}".format(distance, food, foodGoal))
+        return foodGoalState
+
+
 
 def mazeDistance(point1, point2, gameState):
     """

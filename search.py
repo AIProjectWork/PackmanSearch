@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -147,7 +148,8 @@ def directions_from_stack(stack):
     Program expects a list of actions that leads to the goal
     For DFS, it can be derived from stack.
     This function will prepare list of directions from the nodes of stack
-    :param stack: it is a stack of nodes [{state:((1,2), action:None},{state:((1,3), action:North},{state:((2,3), action:East}]
+    :param stack: it is a stack of nodes [{state:((1,2), action:None},{state:((1,3), action:North},{state:((2,3),
+                    action:East}]
     :return: list of directions [North, East]
     """
     directions = []
@@ -210,8 +212,9 @@ def bfs_explore(problem, queue, visited):
     # check if current node is the goal node
     if problem.isGoalState(current_node.get_state()):
         return current_node
-    else: #else add all unexplored successor nodes into the queue
-        #fetch all successors
+    else:
+        # else add all unexplored successor nodes into the queue
+        # fetch all successors
         successors = problem.getSuccessors(current_node.get_state())
         for successor_state, successor_action, successor_cost in successors:
             if successor_state not in visited:
@@ -291,12 +294,13 @@ def ucsExplore(problem, queue, visited):
     # check if current node is the goal node
     if problem.isGoalState(current_node.get_state()):
         return current_node
-    else: #else add all unexplored successor nodes into the queue
-        #fetch all successors
+    else:
+        # else add all unexplored successor nodes into the queue
+        # fetch all successors
         successors = problem.getSuccessors(current_node.get_state())
         for successor_state, successor_action, successor_cost in successors:
             successor_node = UcsNode(successor_state, successor_action, current_node, successor_cost)
-            if is_an_acceptable_ucs_node(successor_node,visited):
+            if is_an_acceptable_ucs_node(successor_node, visited):
                 visited.append([successor_state, successor_node.get_cost_till_here()])
                 queue.push(successor_node, successor_node.get_cost_till_here())
         return None
@@ -389,15 +393,16 @@ def a_star_explore(problem, queue, visited, heuristic):
     # check if current node is the goal node
     if problem.isGoalState(current_node.get_state()):
         return current_node
-    else: #else add all unexplored successor nodes into the queue
-        #fetch all successors
+    else:
+        # else add all unexplored successor nodes into the queue
+        # fetch all successors
         successors = problem.getSuccessors(current_node.get_state())
         for successor_state, successor_action, successor_cost in successors:
             heuristic_value = heuristic(successor_state, problem)
             successor_node = AStarNode(successor_state, successor_action,
                                        current_node, successor_cost, heuristic_value)
             if is_an_acceptable_a_star_node(successor_node, visited):
-                visited.append([successor_node.get_state(),successor_node.get_cost_till_here()])
+                visited.append([successor_node.get_state(), successor_node.get_cost_till_here()])
                 queue.push(successor_node, successor_node.get_total_predicted_cost())
         return None
 
@@ -416,6 +421,7 @@ def is_an_acceptable_a_star_node(a_star_node, visited):
         if a_star_node.get_state() == visited_state:
             return visited_cost > a_star_node.get_cost_till_here()
     return True
+
 
 class AStarNode:
 
@@ -445,6 +451,7 @@ class AStarNode:
     def get_total_predicted_cost(self):
         return self.total_predicted_cost
 
+# =====================================================================================================================#
 
 
 # Abbreviations
