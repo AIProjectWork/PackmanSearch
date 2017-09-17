@@ -505,6 +505,7 @@ def foodHeuristic(state, problem):
     foodGridList = foodGrid.asList()
     # print ("foodGridList:\n {}".format(foodGridList))
 
+    # ===============================================working code======================================================#
     distances = []
     # check distance for each food item
     for foodItem in foodGridList:
@@ -517,6 +518,20 @@ def foodHeuristic(state, problem):
         return max(distances)
     # game over
     return 0
+    # ------------------------------------------working code ends------------------------------------------------------#
+    # =====================test code: distance between foodItems; 16688 nodes =========================================#
+    # foodDistances = []
+    # for foodItem in foodGridList:
+    #     distance, foodItem, currentFoodItem = min(((get_manhattan_distance(foodItem, currentFoodItem), foodItem,\
+    #                                                             currentFoodItem) for currentFoodItem in foodGridList))
+    #     foodDistances.append(distance)
+    # #for foodItem -ends
+    # if len(foodDistances) == 0:
+    #     return 0
+    # else:
+    #     return max(foodDistances)
+    # return 0
+    # ---------------------test code ends------------------------------------------------------------------------------#
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
