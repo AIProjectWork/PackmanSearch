@@ -509,12 +509,21 @@ def foodHeuristic(state, problem):
     # check distance for each food item
     for foodItem in foodGridList:
         distances.append(get_manhattan_distance(position, foodItem))
+        print distances
+
+    last_food_item = None
+    inter_dist = 0
+    for foodItem in foodGridList:
+        if(last_food_item != None):
+            inter_dist += get_manhattan_distance(last_food_item, foodItem)
+        last_food_item = foodItem
+
     # for -ends
     # if we don't have any goal, distance list will be zero, in that case game is over, else return the max distance
     if len(distances) == 0:
         return 0
     else:
-        return max(distances)
+        return min(distances) + inter_dist
     # game over
     return 0
 
