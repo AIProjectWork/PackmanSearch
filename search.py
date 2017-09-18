@@ -261,18 +261,23 @@ class BfsNode:
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
     queue = util.PriorityQueue()
+    # list of positions which are already
     visited = []
+
+    # goal node with it's parent node in it. Required to get path.
     goal_node = None
+
+    # list of directions which lead to the goal
     path = None
-    #     add starting Node as the first node of queue
+
+    # add starting Node as the first node of queue and mark it visited
     visited.append([problem.getStartState(), 0])
     queue.push(UcsNode(problem.getStartState()), 0)
 
+    # we need to go through the entire graph
     while not queue.isEmpty():
+        # if it finds result not none, that is our final goal, it goes out of loop
         result = ucsExplore(problem, queue, visited)
         if result is not None:
             goal_node = result
@@ -307,6 +312,14 @@ def ucsExplore(problem, queue, visited):
 
 
 def is_an_acceptable_ucs_node(ucs_node, visited):
+    """
+    For ucs, in two conditions a node can be acceptable
+    1. It is not yet visited
+    2. It has lower cost than earlier visit
+    :param ucs_node: node with position
+    :param visited: list of all visited nodes
+    :return: true if node can be added to the queue, false otherwise
+    """
     for visited_state, visited_cost in visited:
         if ucs_node.get_state() == visited_state:
             return visited_cost > ucs_node.get_cost_till_here()
@@ -314,6 +327,11 @@ def is_an_acceptable_ucs_node(ucs_node, visited):
 
 
 def directions_using_ucs_goal_node(goal_node):
+    """
+    ucs node contains parent node. so by tracking up until starting node is reached we can find the path
+    :param goal_node: final node
+    :return: list of directions which can lead from starting position to goal position
+    """
     directions = []
     current_node = goal_node
     while current_node.get_action() is not None:
@@ -323,7 +341,9 @@ def directions_using_ucs_goal_node(goal_node):
 
 
 class UcsNode:
-
+    """
+    Required node structure for UCS algo
+    """
     def __init__(self, state, action=None, parent_node=None, cost=0):
         self.state = state
         self.action = action
@@ -366,12 +386,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     visited = []
     goal_node = None
     path = None
-    #     add starting Node as the first node of queue
+    #     add starting Node as the first node of queue and mark it as visited
     starting_node = AStarNode(problem.getStartState(), None, None, 0, heuristic(problem.getStartState(), problem))
     visited.append([starting_node.get_state(), starting_node.get_cost_till_here()])
     queue.push(starting_node, starting_node.get_total_predicted_cost())
 
+    # look for answer until queue is empty
     while not queue.isEmpty():
+        # if it finds result not none, that is our final goal, it goes out of loop
         result = a_star_explore(problem, queue, visited, heuristic)
         if result is not None:
             goal_node = result
@@ -408,6 +430,11 @@ def a_star_explore(problem, queue, visited, heuristic):
 
 
 def directions_using_astar_goal_node(goal_node):
+    """
+    astar node contains parent node. so by tracking up until starting node is reached we can find the path
+    :param goal_node: final node
+    :return: list of directions which can lead from starting position to goal position
+    """
     directions = []
     current_node = goal_node
     while current_node.get_action() is not None:
@@ -417,6 +444,14 @@ def directions_using_astar_goal_node(goal_node):
 
 
 def is_an_acceptable_a_star_node(a_star_node, visited):
+    """
+    For two cases, a node can be acceptable
+    1. It is not yet visited
+    2. It's cost till here is less than the recorded visit
+    :param a_star_node:
+    :param visited:
+    :return: true if the node is acceptable or false otherwise
+    """
     for visited_state, visited_cost in visited:
         if a_star_node.get_state() == visited_state:
             return visited_cost > a_star_node.get_cost_till_here()
@@ -424,7 +459,9 @@ def is_an_acceptable_a_star_node(a_star_node, visited):
 
 
 class AStarNode:
-
+    """
+    Node structure required for A* algo
+    """
     def __init__(self, state, action=None, parent_node=None, cost=0, heuristic_cost=0):
         self.state = state
         self.action = action

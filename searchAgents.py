@@ -499,33 +499,44 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
 
     # converting foodGrid into list to find length and further processing
     foodGridList = foodGrid.asList()
     # print ("foodGridList:\n {}".format(foodGridList))
 
     distances = []
-    # check distance for each food item
+    # check maze distance for each food item. MAze distance is the better heuristic than manhattan distance
+    current_food_state = FoodMazeState(problem.walls, position, len(foodGridList), len(foodGridList) > 0)
     for foodItem in foodGridList:
-        distances.append(get_manhattan_distance(position, foodItem))
-        print distances
+        distances.append(mazeDistance(position, foodItem, current_food_state))
 
-    last_food_item = None
-    inter_dist = 0
-    for foodItem in foodGridList:
-        if(last_food_item != None):
-            inter_dist += get_manhattan_distance(last_food_item, foodItem)
-        last_food_item = foodItem
 
-    # for -ends
-    # if we don't have any goal, distance list will be zero, in that case game is over, else return the max distance
     if len(distances) == 0:
         return 0
     else:
-        return min(distances) + inter_dist
+        return max(distances)
     # game over
     return 0
+
+class FoodMazeState:
+    def __init__(self, walls, pacman_position, num_food, has_food):
+        self.walls = walls
+        self.pacman_position = pacman_position
+        self.num_food = num_food
+        self.has_food = has_food
+
+    def getWalls(self):
+        return self.walls
+
+    def getPacmanPosition(self):
+        return self.pacman_position
+
+    def getNumFood(self):
+        return self.num_food
+
+    def hasFood(self):
+        return self.has_food
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
