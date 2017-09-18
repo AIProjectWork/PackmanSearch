@@ -504,6 +504,7 @@ def foodHeuristic(state, problem):
     foodGridList = foodGrid.asList()
     # print ("foodGridList:\n {}".format(foodGridList))
 
+    # ===============================================working code======================================================#
     distances = []
     # check maze distance for each food item. MAze distance is the better heuristic than manhattan distance
     current_food_state = FoodMazeState(problem.walls, position, len(foodGridList), len(foodGridList) > 0)
@@ -517,6 +518,20 @@ def foodHeuristic(state, problem):
         return max(distances)
     # game over
     return 0
+    # ------------------------------------------working code ends------------------------------------------------------#
+    # =====================test code: distance between foodItems; 16688 nodes =========================================#
+    # foodDistances = []
+    # for foodItem in foodGridList:
+    #     distance, foodItem, currentFoodItem = min(((get_manhattan_distance(foodItem, currentFoodItem), foodItem,\
+    #                                                             currentFoodItem) for currentFoodItem in foodGridList))
+    #     foodDistances.append(distance)
+    # #for foodItem -ends
+    # if len(foodDistances) == 0:
+    #     return 0
+    # else:
+    #     return max(foodDistances)
+    # return 0
+    # ---------------------test code ends------------------------------------------------------------------------------#
 
 class FoodMazeState:
     def __init__(self, walls, pacman_position, num_food, has_food):
